@@ -463,19 +463,23 @@ func (gp *GoPdf) SetStrokeColor(r uint8, g uint8, b uint8) {
 	gp.getContent().AppendStreamSetColorStroke(r, g, b)
 }
 
-//MeasureTextWidth : measure Width of text (use current font)
-func (gp *GoPdf) MeasureTextWidth(text string) (float64, error) {
-
+//MeasureText : measure Width and Height of text (use current font)
+func (gp *GoPdf) MeasureText(text string) (float64, float64, error) {
 	err := gp.curr.Font_ISubset.AddChars(text) //AddChars for create CharacterToGlyphIndex
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-
-	_, _, textWidthPdfUnit, err := createContent(gp.curr.Font_ISubset, text, gp.curr.Font_Size, nil, nil)
+	_, cellHeightPdfUnit, textWidthPdfUnit, err := createContent(gp.curr.Font_ISubset, text, gp.curr.Font_Size, nil, nil)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return textWidthPdfUnit, nil
+	return textWidthPdfUnit, cellHeightPdfUnit, nil
+}
+
+//MeasureTextWidth : measure Width of text (use current font)
+func (gp *GoPdf) MeasureTextWidth(text string) (w float64, err error) {
+	w, _, err = gp.MeasureText(text)
+	return	
 }
 
 //Curve Draws a Bézier curve (the Bézier curve is tangent to the line between the control points at either end of the curve)
